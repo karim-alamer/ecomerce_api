@@ -1,7 +1,9 @@
 const express = require('express');
 const dotenv = require('dotenv');
 const DbConnection = require('./config/database');
-const productRoutes = require('./routes/productRoutes');
+const productRoutes = require('./src/routes/productRoutes');
+const path = require('path');
+
 dotenv.config({ path: 'config.env' });
 
 const app = express();
@@ -13,15 +15,16 @@ app.use(express.json());
 // Connect to MongoDB
 DbConnection();
 
+// Serve static files, including favicon
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Use product routes
 app.use('/', productRoutes);
 
-// Export the app (necessary for Vercel serverless functions)
-module.exports = app;
+// Favicon route
+app.get('/favicon.ico', (req, res) => {
+  res.status(204).end(); // Send a 204 No Content response
+});
 
-// (Optional) Start the server locally when running in development mode
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
-}
+// Start the Express server
+module.exports = app;
